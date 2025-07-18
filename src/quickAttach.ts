@@ -25,8 +25,21 @@ interface Setting {
 }
 
 export async function quickAttach(context: ExtensionContext) {
+  const kubeDir = path.join(process.env.HOME || "", ".kube");
+  const configFiles = fs
+    .readdirSync(kubeDir)
+    .filter((f) => f.startsWith("config"));
+
+  const selectedConfig = await showQuickPick({
+    placeholder: "Select kubeconfig file",
+    items: configFiles.map((f) => ({ label: f })),
+    activeItemLabel: "config",
+  });
+
+  if (!selectedConfig) return;
+
   const kc = new k8s.KubeConfig();
-  kc.loadFromDefault();
+  kc.loadFromFile(path.join(kubeDir, selectedConfig));
 
   const targetContextName = await showQuickPick({
     placeholder: "Select Context",
