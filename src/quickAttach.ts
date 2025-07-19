@@ -121,23 +121,23 @@ export async function quickAttach(context: ExtensionContext) {
     path: undefined,
   };
 
-  const path = await window.showInputBox({
+  const targetPath = await window.showInputBox({
     value: lastSelectedPath,
     placeHolder: "Input path",
   });
-
-  if (!path) {
+  
+  if (!targetPath) {
     return;
   }
-
-  context.globalState.update(key, { path });
-
+  
+  context.globalState.update(key, { path: targetPath });
+  
   const uri = Uri.from({
     scheme: "vscode-remote",
     authority: `k8s-container+${Object.entries(data)
       .map((xs) => xs.join("="))
       .join("+")}`,
-    path,
+    path: targetPath,
   });
 
   await commands.executeCommand("vscode.openFolder", uri, {
